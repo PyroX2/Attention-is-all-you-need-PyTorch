@@ -1,5 +1,6 @@
-
 import torch
+import matplotlib.pyplot as plt
+
 
 class PositionalEncoding(torch.nn.Module):
     def __init__(self, max_sentence_length, d_model):
@@ -38,22 +39,26 @@ class PositionalEncoding(torch.nn.Module):
     def forward(self, input):
         return input + self.pe
 
+
 directory_length = 10_000
-d_model = 512 # Model dimension, embedding dim
+d_model = 512  # Model dimension, embedding dim
 number_of_data_samples = 64
 max_sentence_length = 128
 
 # Create source and target data
-source_data = torch.randint(1, directory_length, (number_of_data_samples, max_sentence_length))
-target_data = torch.randint(1, directory_length, (number_of_data_samples, max_sentence_length))
+source_data = torch.randint(
+    1, directory_length, (number_of_data_samples, max_sentence_length))
+target_data = torch.randint(
+    1, directory_length, (number_of_data_samples, max_sentence_length))
 
 embedding = torch.nn.Embedding(directory_length, d_model)
 
 source_embedding = embedding(source_data)
 target_embedding = embedding(target_data)
 
-positional_encoding = PositionalEncoding(max_sentence_length, d_model)   
+positional_encoding = PositionalEncoding(max_sentence_length, d_model)
 
-positional_encoding.forward(source_embedding).shape
-
-
+input_tensor = torch.zeros((max_sentence_length, d_model))
+pe_tensor = positional_encoding(input_tensor)
+plt.imshow(pe_tensor)
+plt.show()
