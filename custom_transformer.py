@@ -6,31 +6,35 @@ class PositionalEncoding(torch.nn.Module):
         super(PositionalEncoding, self).__init__()
 
         '''
-        Implementation of positional encoding using for loop. The slow way.
-        
-        self.pe = torch.zeros((max_sentence_length, d_model)) # Initalize positional encoding with zeros
+        # Implementation of positional encoding using for loop. The slow way.
+
+        # Initalize positional encoding with zeros
+        self.pe = torch.zeros((max_sentence_length, d_model))
         for pos in range(max_sentence_length):
             for i in range(int(d_model/2)):
                 encoding = torch.tensor(pos / (10_000)**(2*i/d_model))
                 self.pe[pos, 2*i] = torch.sin(encoding)
                 self.pe[pos, 2*i+1] = torch.cos(encoding)
         '''
-        
-        # Torch version
-        positions = torch.arange(0, max_sentence_length).unsqueeze(1) # Create positions from 0 to max_sentence_length 
-        positions = positions.expand(max_sentence_length, d_model) # Expand its dims so it can be divided by torch with embedding dim
-        
-        embedding_positions = torch.arange(0, d_model)
-        
-        div_term = (10_000)**(2*embedding_positions/d_model) # Create division terms for each embedding value
-        
-        self.pe = torch.zeros((max_sentence_length, d_model)) # Initialize positional encoding tensor with zeros
-        
+
+        # Create positions from 0 to max_sentence_length
+        positions = torch.arange(0, max_sentence_length).unsqueeze(1)
+
+        # Expand its dims so it can be divided by torch with embedding dim
+        positions = positions.expand(max_sentence_length, d_model)
+
+        embedding_positions = torch.arange(0, d_model/2)
+
+        # Create division terms for each embedding value
+        div_term = (10_000)**(2*embedding_positions/d_model)
+
+        # Initialize positional encoding tensor with zeros
+        self.pe = torch.zeros((max_sentence_length, d_model))
+
         # Apply positional encoding
-        self.pe[:, 0::2] = torch.sin(positions[:, 0::2] / div_term[0::2])
-        self.pe[:, 1::2] = torch.cos(positions[:, 1::2] / div_term[1::2])
-        
-                
+        self.pe[:, 0::2] = torch.sin(positions[:, 0::2] / div_term)
+        self.pe[:, 1::2] = torch.cos(positions[:, 1::2] / div_term)
+
     def forward(self, input):
         return input + self.pe
 
